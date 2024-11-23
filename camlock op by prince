@@ -22,19 +22,34 @@ toggleButton.BorderColor3 = Color3.fromRGB(173, 216, 230) -- Light blue outline
 
 -- Function to update the camera
 local function updateCamera()
-    -- Find the target (aimed at the part you're pointing to)
-    local targetPart = game:GetService("Players"):GetPlayers()[1].Character:FindFirstChild("UpperTorso") -- Example target part
+    -- Find all players except the local player (executor)
+    local localPlayer = game.Players.LocalPlayer
+    local targetPlayer = nil
 
-    -- If target part is found
-    if targetPart then
-        -- Calculate target position with prediction and jump offset
-        local targetPosition = targetPart.Position + (targetPart.Velocity * settings.prediction) + settings.jumpOffset
+    -- Find the closest player to the camera's aim (but not the executor)
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("UpperTorso") then
+            -- You can further refine the logic to find the closest player based on your aim
+            -- For now, just locking on to the first valid player found (customize if needed)
+            targetPlayer = player
+            break
+        end
+    end
+
+    -- If a target player is found
+    if targetPlayer and targetPlayer.Character then
+        local targetPart = targetPlayer.Character:FindFirstChild("UpperTorso")
         
-        -- Apply smoothness to camera movement
-        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(
-            CFrame.new(workspace.CurrentCamera.CFrame.Position, targetPosition),
-            settings.smoothness
-        )
+        if targetPart then
+            -- Calculate target position with prediction and jump offset
+            local targetPosition = targetPart.Position + (targetPart.Velocity * settings.prediction) + settings.jumpOffset
+
+            -- Apply smoothness to camera movement
+            workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(
+                CFrame.new(workspace.CurrentCamera.CFrame.Position, targetPosition),
+                settings.smoothness
+            )
+        end
     end
 end
 
