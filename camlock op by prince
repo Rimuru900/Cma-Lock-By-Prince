@@ -1,0 +1,60 @@
+-- Settings Configuration
+local settings = {
+    prediction = 0.168,    -- Prediction value
+    jumpOffset = Vector3.new(0, 0.42, 0), -- Jump offset value
+    smoothness = 0.076,    -- Smoothness value (0 = instant, 1 = very smooth)
+    updateFrequency = 0.03 -- Throttle updates to every 0.03 seconds (adjustable)
+}
+
+-- Create GUI and toggle button
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Create the ToggleButton
+local toggleButton = Instance.new("TextButton", screenGui)
+toggleButton.Size = UDim2.new(0, 60, 0, 20) -- Small size
+toggleButton.Position = UDim2.new(0, 10, 0, 10) -- Top-left corner
+toggleButton.Text = "On"
+toggleButton.BackgroundColor3 = Color3.fromRGB(169, 169, 169) -- Grey
+toggleButton.TextColor3 = Color3.fromRGB(0, 0, 0) -- Black text
+toggleButton.BorderSizePixel = 1
+toggleButton.BorderColor3 = Color3.fromRGB(173, 216, 230) -- Light blue outline
+
+-- Function to update the camera
+local function updateCamera()
+    -- Find the target (aimed at the part you're pointing to)
+    local targetPart = game:GetService("Players"):GetPlayers()[1].Character:FindFirstChild("UpperTorso") -- Example target part
+
+    -- If target part is found
+    if targetPart then
+        -- Calculate target position with prediction and jump offset
+        local targetPosition = targetPart.Position + (targetPart.Velocity * settings.prediction) + settings.jumpOffset
+        
+        -- Apply smoothness to camera movement
+        workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(
+            CFrame.new(workspace.CurrentCamera.CFrame.Position, targetPosition),
+            settings.smoothness
+        )
+    end
+end
+
+-- Throttling: Run the update every `updateFrequency` seconds
+local lastUpdateTime = 0
+game:GetService("RunService").Heartbeat:Connect(function(deltaTime)
+    if toggleButton.Text == "On" then
+        lastUpdateTime = lastUpdateTime + deltaTime
+        if lastUpdateTime >= settings.updateFrequency then
+            updateCamera()
+            lastUpdateTime = 0 -- Reset the timer
+        end
+    end
+end)
+
+-- Toggle button functionality
+toggleButton.MouseButton1Click:Connect(function()
+    if toggleButton.Text == "On" then
+        toggleButton.Text = "Off"
+    else
+        toggleButton.Text = "On"
+    end
+end)
