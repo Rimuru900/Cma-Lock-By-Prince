@@ -2,12 +2,13 @@
 local settings = {
     prediction = 0.168,    -- Prediction value
     jumpOffset = Vector3.new(0, 0.42, 0), -- Jump offset value
-    smoothness = 0.076,    -- Smoothness value (0 = instant, 1 = very smooth)
+    smoothness = 0.2,      -- Smoothness value updated to 0.2
     updateFrequency = 0.03 -- Throttle updates to every 0.03 seconds (adjustable)
 }
 
 -- Create GUI and toggle button
 local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CameraLockGUI"
 screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 -- Create the ToggleButton
@@ -71,5 +72,13 @@ toggleButton.MouseButton1Click:Connect(function()
         toggleButton.Text = "Off"
     else
         toggleButton.Text = "On"
+    end
+end)
+
+-- Ensure the button persists after death
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+    -- Check if the GUI already exists, if not, re-parent it
+    if not screenGui.Parent then
+        screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
     end
 end)
